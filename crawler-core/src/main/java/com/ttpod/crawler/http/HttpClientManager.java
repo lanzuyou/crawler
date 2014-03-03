@@ -1,8 +1,14 @@
-package com.ttpod.crawler.util.http;
+package com.ttpod.crawler.http;
 
+import com.ttpod.crawler.model.Request;
 import com.ttpod.crawler.model.Site;
 import org.apache.http.*;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.protocol.ResponseContentEncoding;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -16,6 +22,7 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.protocol.HttpContext;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,6 +34,8 @@ import java.util.Map;
  */
 public class HttpClientManager {
     private PoolingHttpClientConnectionManager connectionManager;
+    private final Map<String, CloseableHttpClient> httpClients = new HashMap<String, CloseableHttpClient>();
+    private static final String GENERAL = "GENERAL";
 
     public HttpClientManager() {
         Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
@@ -37,7 +46,7 @@ public class HttpClientManager {
         connectionManager.setDefaultMaxPerRoute(100);
     }
 
-    public HttpClientManager setPoolSize(int poolSize){
+    public HttpClientManager setPoolSize(int poolSize) {
         connectionManager.setMaxTotal(poolSize);
         return this;
     }
@@ -103,5 +112,48 @@ public class HttpClientManager {
             }
         }
         httpClientBuilder.setDefaultCookieStore(cookieStore);
+    }
+
+    public CloseableHttpClient getHttpClient(Site site) {
+        String domain = GENERAL;
+        if (site != null) {
+            domain = site.getDomain();
+        }
+
+        CloseableHttpClient httpClient = httpClients.get(domain);
+        if (httpClient == null) {
+            synchronized (this) {
+                httpClient = httpClients.get(domain);
+                if (httpClient == null) {
+                    if (site != null) {
+                        httpClient = this.getClient(site);
+                    } else {
+                        httpClient = this.getClient(null);
+                    }
+
+                    httpClients.put(domain, httpClient);
+                }
+            }
+        }
+        return httpClient;
+    }
+
+    public HttpUriRequest bulidRequest(Request request, Site site) throws IOException {
+        Map<String, String> headers = site.getHeaders();
+        RequestBuilder requestBuilder = RequestBuilder.get().setUri(request.getUrl());
+        if (headers != null) {
+            for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
+                requestBuilder.addHeader(headerEntry.getKey(), headerEntry.getValue());
+            }
+        }
+        RequestConfig.Builder requestConfigBuilder = RequestConfig.custom()
+                .setConnectionRequestTimeout(site.getTimeOut())
+                .setSocketTimeout(site.getTimeOut())
+                .setConnectTimeout(site.getTimeOut())
+                .setCookieSpec(CookieSpecs.BEST_MATCH);
+        if (site.getHttpProxy() != null) {
+            requestConfigBuilder.setProxy(site.getHttpProxy());
+        }
+        return requestBuilder.setConfig(requestConfigBuilder.build()).build();
     }
 }

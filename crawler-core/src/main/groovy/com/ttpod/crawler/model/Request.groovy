@@ -8,9 +8,10 @@ package com.ttpod.crawler.model
  * To change this template use File | Settings | File Templates.
  */
 class Request {
-    private String url;
-    private Map<String, Object> context;
-    private long priority;
+    private String url
+    private def context
+    private long priority
+    private String file;
 
     String getUrl() {
         return url
@@ -21,11 +22,11 @@ class Request {
         return this
     }
 
-    Map<String, Object> getContext() {
+    def getContext() {
         return context
     }
 
-    def setContext(Map<String, Object> context) {
+    def setContext(def context) {
         this.context = context
         return this
     }
@@ -37,5 +38,13 @@ class Request {
     def setPriority(long priority) {
         this.priority = priority
         return this
+    }
+
+    String getFile() {
+        return file
+    }
+
+    void setFile(String file) {
+        this.file = file
     }
 }

@@ -10,36 +10,40 @@ import org.apache.http.HttpHost
  * To change this template use File | Settings | File Templates.
  */
 class Site {
-    private String domain;
+    private String domain
 
-    private String userAgent;
+    private String userAgent
 
-    private Map<String, String> cookies = new LinkedHashMap<String, String>();
+    private def cookies = new LinkedHashMap<String, String>()
 
-    private String charset;
+    private String charset
 
     /**
      * startUrls is the urls the crawler to start with.
      */
-    private List<Request> startRequests = new ArrayList<Request>();
+    private List<Request> startRequests = []
 
-    private int sleepTime = 5000;
+    private int sleepTime = 5000
 
-    private int retryTimes = 0;
+    private int retryTimes = 0
 
-    private int cycleRetryTimes = 0;
+    private int cycleRetryTimes = 0
 
-    private int timeOut = 5000;
+    private int timeOut = 5000
 
-    private static final Set<Integer> DEFAULT_STATUS_CODE_SET = new HashSet<Integer>();
+    private static final Set<Integer> DEFAULT_STATUS_CODE_SET = new HashSet<Integer>()
 
-    private Set<Integer> acceptStatCode = DEFAULT_STATUS_CODE_SET;
+    private Set<Integer> acceptStatCode = DEFAULT_STATUS_CODE_SET
 
-    private Map<String, String> headers = new HashMap<String, String>();
+    private def headers = [:]
 
-    private HttpHost httpProxy;
+    private HttpHost httpProxy
 
-    private boolean useGzip = true;
+    private boolean useGzip = true
+
+    static {
+        DEFAULT_STATUS_CODE_SET.add(200);
+    }
 
     String getDomain() {
         return domain
