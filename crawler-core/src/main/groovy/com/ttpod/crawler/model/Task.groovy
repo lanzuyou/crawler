@@ -8,7 +8,12 @@ package com.ttpod.crawler.model
  * To change this template use File | Settings | File Templates.
  */
 class Task {
+    private String name;
     private Site site;
+
+    static Task getTask(String id, boolean flag) {
+        return new Task()
+    }
 
     Site getSite() {
         return site

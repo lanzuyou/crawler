@@ -5,7 +5,6 @@ import com.ttpod.crawler.model.Request;
 import com.ttpod.crawler.model.Site;
 import com.ttpod.crawler.model.Task;
 import com.ttpod.crawler.util.HtmlUtil;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -32,7 +31,8 @@ public abstract class HttpClientDownloader implements Downloader {
         Site site = null;
         if (task != null) {
             site = task.getSite();
-        } else {
+        }
+        if (site == null) {
             site = new Site();
         }
         Set<Integer> acceptStatCode = site.getAcceptStatCode();
@@ -91,6 +91,6 @@ public abstract class HttpClientDownloader implements Downloader {
 
     @Override
     public void setThread(int threadNum) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        clientManager.setPoolSize(threadNum);
     }
 }

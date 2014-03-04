@@ -13,6 +13,10 @@ class Request {
     private long priority
     private String file;
 
+    Request(String url) {
+        this.url = url
+    }
+
     String getUrl() {
         return url
     }
